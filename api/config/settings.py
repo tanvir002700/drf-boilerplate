@@ -41,7 +41,7 @@ if DJANGO_ENV == 'development':
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'q3g1g4cn%q&%@b)*vafcat1r2f6u(*$py!m$v)qa_v_jayos06'
+SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
