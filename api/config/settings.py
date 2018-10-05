@@ -11,9 +11,30 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import environ
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Project Base Paths
+# project_root/api/config/settings.py - 3 = project_root/
+ROOT_DIR = environ.Path(__file__) - 3
+API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Load OS environment variables and then prepare to use them
+env = environ.Env()
+DJANGO_ENV = env.str('DJANGO_ENV', default='development')
+
+# Loading .env file from root directory to set environment.
+# OS Environment variables have precedence over variables defined
+# in the .env file, that is to say variables from the .env files
+# will only be used if not defined as environment variables.
+env_file = ROOT_DIR('.env')
+env.read_env(env_file)
+
+if DJANGO_ENV == 'development':
+    # SECURITY WARNING: don't run with debug turned on in production!
+    # https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DEBUG
+
+    DEBUG = True
 
 
 # Quick-start development settings - unsuitable for production
@@ -22,10 +43,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'q3g1g4cn%q&%@b)*vafcat1r2f6u(*$py!m$v)qa_v_jayos06'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
+USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 
 
 # Application definition
@@ -40,6 +60,33 @@ INSTALLED_APPS = [
     'rest_framework'
 ]
 
+# Rest Framework Settings
+# http://www.django-rest-framework.org/api-guide/settings/
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':
+    ('rest_framework.permissions.DjangoModelPermissions', ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_PAGINATION_CLASS':
+    'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE':
+    env.int('DJANGO_DEFAULT_PAGE_SIZE', default=25),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.SearchFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'EXCEPTION_HANDLER':
+    'config.exceptions.api_exception_handler',
+}
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,17 +99,23 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+
+# Django Template Configuration
+# https://docs.djangoproject.com/en/2.0/ref/settings/#templates
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [API_DIR('templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.media',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_settings_export.settings_export',
             ],
         },
     },
