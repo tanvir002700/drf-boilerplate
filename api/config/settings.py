@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from django.utils.translation import gettext_lazy as _
 import environ
 
 # Project Base Paths
@@ -57,7 +58,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'django.contrib.sites',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'utils',
+    'django_filters',
+    'django_extensions',
+    'django.contrib.postgres',
 ]
 
 # Rest Framework Settings
@@ -172,3 +180,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Site Specific Settings
+
+DOMAIN = env.str('DOMAIN', default='localhost:3000')
+SITE_NAME = _(env.str('SITE_NAME'))
+SITE_LOGO_URL = env.str('SITE_LOGO_URL')
+SITE_OWNER_NAME = _(env.str('SITE_OWNER_NAME'))
+SITE_OWNER_URL = env.str('SITE_OWNER_URL')
+ADMIN_SITE_HEADER = env.str('ADMIN_SITE_HEADER')
+API_BROWSER_HEADER = env.str('API_BROWSER_HEADER')
+
