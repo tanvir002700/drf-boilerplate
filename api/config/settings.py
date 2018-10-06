@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
 ]
 
+
 # Rest Framework Settings
 # http://www.django-rest-framework.org/api-guide/settings/
 
@@ -82,6 +83,12 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': env.str(
+            'DJANGO_DEFAULT_THROTTLE_RATE_ANON', default='60/minute'),
+        'user': env.str(
+            'DJANGO_DEFAULT_THROTTLE_RATE_USER', default='120/minute'),
+    },
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE':
