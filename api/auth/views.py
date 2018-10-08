@@ -14,6 +14,7 @@ from djoser.compat import get_user_email, get_user_email_field_name
 from djoser.conf import settings
 
 from config import exceptions
+from . import serializers
 
 User = get_user_model()
 
@@ -46,3 +47,23 @@ class AuthApiListView(views.APIView):
         urlpattern_names = self.aggregate_urlpattern_names()
         urls_map = self.get_urls_map(request, urlpattern_names, fmt)
         return Response(urls_map)
+
+
+class SignUpView(generics.CreateAPIView):
+    """
+    Use this endpoint to register new user.
+    """
+    serializer_class = serializers.SignUpSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        signals.user_registered.send(
+            sender=self.__class__, user=user, request=self.request)
+
+        if settings.SEND_ACTIVATION_EMAIL:
+            # TODO Need to implement mail sending
+            pass
+        elif settings.SEND_CONFIRMATION_EMAIL:
+            # TODO Need to implement mail sending
+            pass
