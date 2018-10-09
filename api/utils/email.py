@@ -62,7 +62,7 @@ class BaseEmailMessage(EmailMessage):
                                          settings.DEFAULT_FROM_EMAIL)
             self.context = self.get_context_data()
 
-            super(BaseEmailMessage, self).send(*args, **kwargs)
+            return super(BaseEmailMessage, self).send(*args, **kwargs)
         except Exception as error:
             logger.exception(
                 f'Unable to send an {self.template_name} to {self.to}')

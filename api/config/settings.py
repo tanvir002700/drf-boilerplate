@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'rest_framework',
     'rest_framework.authtoken',
+    'macros',
     'users',
     'djoser',
     'mail_templated',
