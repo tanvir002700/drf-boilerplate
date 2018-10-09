@@ -15,6 +15,7 @@ from djoser.conf import settings
 
 from config import exceptions
 from . import serializers
+from . import mailer
 
 User = get_user_model()
 
@@ -58,12 +59,13 @@ class SignUpView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        signals.user_registered.send(
-            sender=self.__class__, user=user, request=self.request)
+        signals.user_registered.send(sender=self.__class__, user=user,
+                                     request=self.request)
 
+        context = {'user': user}
+        recipient = [get_user_email(user)]
         if settings.SEND_ACTIVATION_EMAIL:
-            # TODO Need to implement mail sending
-            pass
+            mailer.ActivationEmail(self.request, context, recipient).send()
         elif settings.SEND_CONFIRMATION_EMAIL:
             # TODO Need to implement mail sending
             pass
