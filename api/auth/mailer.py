@@ -18,3 +18,13 @@ class ActivationEmail(BaseEmailMessage):
         context['token'] = default_token_generator.make_token(user)
         context['url'] = settings.ACTIVATION_URL.format(**context)
         return context
+
+
+class ConfirmationEmail(BaseEmailMessage):
+    template_name = 'email/confirmation.html'
+
+    def get_context_data(self):
+        context = super(ConfirmationEmail, self).get_context_data()
+
+        context['url'] = settings.LOGIN_URL
+        return context

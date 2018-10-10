@@ -67,5 +67,4 @@ class SignUpView(generics.CreateAPIView):
         if settings.SEND_ACTIVATION_EMAIL:
             mailer.ActivationEmail(self.request, context, recipient).send()
         elif settings.SEND_CONFIRMATION_EMAIL:
-            # TODO Need to implement mail sending
-            pass
+            mailer.ConfirmationEmail(self.request, context, recipient).send()
