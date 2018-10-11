@@ -93,3 +93,28 @@ class ResendActivationView(utils.ActionViewMixin, generics.GenericAPIView):
         context = {'user': user}
         recipient = [get_user_email(user)]
         mailer.ActivationEmail(self.request, context, recipient).send()
+
+
+class ActivationView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.UidAndTokenSerializer
+    permission_classes = [permissions.AllowAny]
+    token_generator = default_token_generator
+
+    def _action(self, serializer):
+        user = serializer.user
+        if user.is_active:
+            raise exceptions.AlreadyProcessed(
+                _('The user account is already active.'))
+
+        user.is_active = True
+        user.save()
+
+        signals.user_activated.send(
+            sender=self.__class__, user=user, request=self.request)
+
+        if settings.SEND_CONFIRMATION_EMAIL:
+            context = {'user': user}
+            recipient = [get_user_email(user)]
+            mailer.ConfirmationEmail(self.request, context, recipient).send()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
