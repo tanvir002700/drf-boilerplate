@@ -56,3 +56,13 @@ class SignUpSerializer(serializers.ModelSerializer):
                 user.is_active = False
                 user.save(update_fields=['is_active'])
         return user
+
+
+class EmailAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        users = self.context['view'].get_users(value)
+        if not users:
+            raise drf_exceptions.NotFound(
+                _('User account with given email does not exist.'))

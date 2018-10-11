@@ -21,9 +21,6 @@ User = get_user_model()
 
 
 class AuthApiListView(views.APIView):
-    """
-    List of authentication related api endpoints
-    """
     permission_classes = [permissions.AllowAny]
 
     @staticmethod
@@ -68,3 +65,31 @@ class SignUpView(generics.CreateAPIView):
             mailer.ActivationEmail(self.request, context, recipient).send()
         elif settings.SEND_CONFIRMATION_EMAIL:
             mailer.ConfirmationEmail(self.request, context, recipient).send()
+
+
+class ResendActivationView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.EmailAccountSerializer
+    permission_classes = [permissions.AllowAny]
+
+    _users = None
+
+    def _action(self, serializer):
+        for user in self.get_users(serializer.data['email']):
+            if user.is_active:
+                raise exceptions.AlreadyProcessed(
+                    _('The user account is already active.'))
+
+            self.send_activation_email(user)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_users(self, email):
+        if self._users is None:
+            email_field_name = get_user_email_field_name(User)
+            self._users = User.objects.filter(
+                **{email_field_name + '__iexact': email})
+        return self._users
+
+    def send_activation_email(self, user):
+        context = {'user': user}
+        recipient = [get_user_email(user)]
+        mailer.ActivationEmail(self.request, context, recipient).send()
