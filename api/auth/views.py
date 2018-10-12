@@ -48,9 +48,6 @@ class AuthApiListView(views.APIView):
 
 
 class SignUpView(generics.CreateAPIView):
-    """
-    Use this endpoint to register new user.
-    """
     serializer_class = serializers.SignUpSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -118,3 +115,13 @@ class ActivationView(utils.ActionViewMixin, generics.GenericAPIView):
             mailer.ConfirmationEmail(self.request, context, recipient).send()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LoginView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.LoginSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def _action(self, serializer):
+        token = utils.login_user(self.request, serializer.user)
+        token_serializer_class = serializers.TokenSerializer
+        return Response(data=token_serializer_class(token).data)
