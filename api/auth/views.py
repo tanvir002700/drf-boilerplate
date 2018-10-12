@@ -125,3 +125,12 @@ class LoginView(utils.ActionViewMixin, generics.GenericAPIView):
         token = utils.login_user(self.request, serializer.user)
         token_serializer_class = serializers.TokenSerializer
         return Response(data=token_serializer_class(token).data)
+
+
+class LogoutView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @staticmethod
+    def delete(request):
+        utils.logout_user(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
