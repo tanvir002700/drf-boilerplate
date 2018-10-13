@@ -145,3 +145,62 @@ class LoginSerializer(serializers.Serializer):
 
         return user
 
+
+class PasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(style={'input_type': 'password'})
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordSerializer, self).__init__(*args, **kwargs)
+        self.user = None
+
+    def validate(self, attrs):
+        user = self.context['request'].user or self.user
+        assert user is not None
+
+        try:
+            validate_password(attrs['new_password'], user)
+        except django_exceptions.ValidationError as e:
+            raise serializers.ValidationError({
+                'new_password': list(e.messages)
+            })
+        return super(PasswordSerializer, self).validate(attrs)
+
+
+class PasswordRetypeSerializer(PasswordSerializer):
+    re_new_password = serializers.CharField(style={'input_type': 'password'})
+
+    default_error_messages = {
+        'password_mismatch': _('The two password fields did not match.'),
+    }
+
+    def validate(self, attrs):
+        attrs = super(PasswordRetypeSerializer, self).validate(attrs)
+        if attrs['new_password'] != attrs['re_new_password']:
+            self.fail('password_mismatch')
+
+        return attrs
+
+
+class CurrentPasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(style={'input_type': 'password'})
+
+    default_error_messages = {
+        'incorrect_password':
+        _('Incorrect password. Please provide your current password.'),
+    }
+
+    def validate_current_password(self, value):
+        is_password_valid = self.context['request'].user.check_password(value)
+        if not is_password_valid:
+            self.fail('incorrect_password')
+
+        return value
+
+
+class SetPasswordSerializer(PasswordSerializer, CurrentPasswordSerializer):
+    pass
+
+
+class SetPasswordRetypeSerializer(PasswordRetypeSerializer,
+                                  CurrentPasswordSerializer):
+    pass

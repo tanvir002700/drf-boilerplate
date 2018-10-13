@@ -134,3 +134,21 @@ class LogoutView(views.APIView):
     def delete(request):
         utils.logout_user(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SetPasswordView(utils.ActionViewMixin, generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if settings.SET_PASSWORD_RETYPE:
+            return serializers.SetPasswordRetypeSerializer
+        return serializers.SetPasswordSerializer
+
+    def _action(self, serializer):
+        self.request.user.set_password(serializer.data['new_password'])
+        self.request.user.save()
+
+        if settings.LOGOUT_ON_PASSWORD_CHANGE:
+            utils.logout_user(self.request)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
