@@ -173,3 +173,30 @@ class SetPasswordView(utils.ActionViewMixin, generics.GenericAPIView):
             utils.logout_user(self.request)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PasswordResetView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.EmailAccountSerializer
+    permission_classes = [permissions.AllowAny]
+
+    _users = None
+
+    def _action(self, serializer):
+        for user in self.get_users(serializer.data['email']):
+            self.send_password_reset_email(user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_users(self, email):
+        if self._users is None:
+            email_field_name = get_user_email_field_name(User)
+            users = User.objects.filter(
+                **{email_field_name + '__iexact': email})
+            self._users = [
+                u for u in users if u.is_active and u.has_usable_password()
+            ]
+        return self._users
+
+    def send_password_reset_email(self, user):
+        context = {'user': user}
+        recipient = [get_user_email(user)]
+        mailer.PasswordResetEmail(self.request, context, recipient).send()
