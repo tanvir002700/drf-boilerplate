@@ -136,6 +136,27 @@ class LogoutView(views.APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class SetUserEmailView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.SetEmailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _action(self, serializer):
+        user = self.request.user
+        user_serializer = self.get_serializer(user, serializer.data)
+
+        if user_serializer.is_valid():
+            user_serializer.save()
+            if settings.SEND_ACTIVATION_EMAIL:
+                user.is_active = False
+                context = {'user': user}
+                recipient = [get_user_email(user)]
+                mailer.ActivationEmail(self.request, context, recipient).send()
+
+            utils.logout_user(self.request)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(user_serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+
 class SetPasswordView(utils.ActionViewMixin, generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 

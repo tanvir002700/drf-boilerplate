@@ -204,3 +204,11 @@ class SetPasswordSerializer(PasswordSerializer, CurrentPasswordSerializer):
 class SetPasswordRetypeSerializer(PasswordRetypeSerializer,
                                   CurrentPasswordSerializer):
     pass
+
+
+class SetEmailSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
+    class Meta(object):
+        model = User
+        fields = ('email', )
