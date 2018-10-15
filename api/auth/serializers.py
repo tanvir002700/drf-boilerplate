@@ -212,3 +212,13 @@ class SetEmailSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
         fields = ('email', )
+
+
+class PasswordResetConfirmSerializer(UidAndTokenSerializer,
+                                     PasswordSerializer):
+    pass
+
+
+class PasswordResetConfirmRetypeSerializer(UidAndTokenSerializer,
+                                           PasswordRetypeSerializer):
+    pass

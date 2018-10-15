@@ -200,3 +200,20 @@ class PasswordResetView(utils.ActionViewMixin, generics.GenericAPIView):
         context = {'user': user}
         recipient = [get_user_email(user)]
         mailer.PasswordResetEmail(self.request, context, recipient).send()
+
+
+class PasswordResetConfirmView(utils.ActionViewMixin, generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    token_generator = default_token_generator
+
+    def get_serializer_class(self):
+        if settings.PASSWORD_RESET_CONFIRM_RETYPE:
+            return serializers.PasswordResetConfirmRetypeSerializer
+        return serializers.PasswordResetConfirmSerializer
+
+    def _action(self, serializer):
+        serializer.user.set_password(serializer.data['new_password'])
+        serializer.user.save()
+        if self.request.user.is_authenticated:
+            utils.logout_user(self.request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
