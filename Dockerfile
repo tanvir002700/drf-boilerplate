@@ -12,9 +12,8 @@ RUN apt-get update -yqq \
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /usr/src/app
-COPY requirements.txt ./
-RUN pip install -r api/requirements.txt
 COPY . .
+RUN pip install -r api/requirements.txt
 
 EXPOSE 8000
 
