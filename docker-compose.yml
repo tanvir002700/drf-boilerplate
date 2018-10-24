@@ -11,6 +11,12 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/db-data
 
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+
   app:
     build: .
     env_file: .docker-env
@@ -18,3 +24,4 @@ services:
       - '8000:8000'
     depends_on:
       - db
+      - mail
