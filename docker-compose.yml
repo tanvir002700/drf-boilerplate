@@ -20,6 +20,8 @@ services:
   app:
     build: .
     env_file: .docker-env
+    volumes:
+      - .:/usr/src/app
     ports:
       - '8000:8000'
     depends_on:
