@@ -4,14 +4,41 @@ This is a django rest framework project boilerplate.
 
 ## Initial Auth Endpoints
  - User Signup
+ ```
+  /api/auth/signup/
+ ```
  - User Login
+ ```
+  /api/auth/login/
+ ```
  - User Logout
+  ```
+   /api/auth/logout/
+ ```
  - User Account Activation
+  ```
+   api/auth/activate/
+ ```
  - User Account Activation Resend Email
+  ```
+   /api/auth/resend/
+ ```
  - User Password Reset Eamil
+  ```
+   /api/auth/reset_password/
+ ```
  - User Password Confirmation
+  ```
+   /api/auth/reset_password_confirm/
+ ```
  - User Set Password
+  ```
+   /api/auth/change_password/
+ ```
  - User Set Email
+  ```
+   /api/auth/change_email/
+ ```
 
 ## Initial Others Endpoints
  - Api Docs
