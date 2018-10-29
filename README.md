@@ -42,7 +42,13 @@ This is a django rest framework project boilerplate.
 
 ## Initial Others Endpoints
  - Api Docs
+ ```
+  /api/
+ ```
  - Api Schema
+ ```
+  /api/schema/
+ ```
  
 ## Local Development Setup
  - First Create python virtual env
