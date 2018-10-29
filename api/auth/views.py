@@ -136,8 +136,8 @@ class LogoutView(views.APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SetUserEmailView(utils.ActionViewMixin, generics.GenericAPIView):
-    serializer_class = serializers.SetEmailSerializer
+class ChangeEmailView(utils.ActionViewMixin, generics.GenericAPIView):
+    serializer_class = serializers.ChangeEmailSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def _action(self, serializer):
@@ -157,13 +157,13 @@ class SetUserEmailView(utils.ActionViewMixin, generics.GenericAPIView):
         return Response(user_serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 
-class SetPasswordView(utils.ActionViewMixin, generics.GenericAPIView):
+class ChangePasswordView(utils.ActionViewMixin, generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
         if settings.SET_PASSWORD_RETYPE:
-            return serializers.SetPasswordRetypeSerializer
-        return serializers.SetPasswordSerializer
+            return serializers.ChangePasswordRetypeSerializer
+        return serializers.ChangePasswordSerializer
 
     def _action(self, serializer):
         self.request.user.set_password(serializer.data['new_password'])

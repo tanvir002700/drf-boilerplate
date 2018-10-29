@@ -197,16 +197,16 @@ class CurrentPasswordSerializer(serializers.Serializer):
         return value
 
 
-class SetPasswordSerializer(PasswordSerializer, CurrentPasswordSerializer):
+class ChangePasswordSerializer(PasswordSerializer, CurrentPasswordSerializer):
     pass
 
 
-class SetPasswordRetypeSerializer(PasswordRetypeSerializer,
-                                  CurrentPasswordSerializer):
+class ChangePasswordRetypeSerializer(PasswordRetypeSerializer,
+                                     CurrentPasswordSerializer):
     pass
 
 
-class SetEmailSerializer(serializers.ModelSerializer):
+class ChangeEmailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
 
     class Meta(object):
